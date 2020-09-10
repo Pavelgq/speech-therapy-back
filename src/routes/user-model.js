@@ -1,8 +1,10 @@
 // const db = require('../db/database');
 const mongoose = require('mongoose');
-const crypto = require('crypto')
+const crypto = require('crypto');
 var ObjectId = require('mongodb').ObjectID;
 const logger = require(`../logger/logger`);
+
+// console.log(mongoose);
 
 const userSchema = new mongoose.Schema({
     displayName: String,
@@ -30,8 +32,17 @@ userSchema.virtual('password')
     })
     .get(function () {
         return this._plainPassword;
-      });
+    });
 
+userSchema.methods.checkPassword = function (password) {
+    if (!password) return false;
+    if (!this.passwordHash) return false;
+    return crypto.pbkdf2Sync(password, this.salt, 1, 128, 'sha1') == this.passwordHash;
+};
+
+const userModel = mongoose.model('User', userSchema);
+
+module.exports = userModel;
 // class UserStore {
 //     constructor(collection) {
 //         this.collection = collection;

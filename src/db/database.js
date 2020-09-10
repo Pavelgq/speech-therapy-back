@@ -1,17 +1,28 @@
-const {MongoClient} = require(`mongodb`);
+const {
+    MongoClient
+} = require(`mongodb`);
 const mongoose = require('mongoose');
 const logger = require(`../logger/logger`);
+const mongoURL = require('../secret/mongo-url');
 
+const startDB = async () => {
+    try {
+        mongoose.set('useCreateIndex', true);
+        await mongoose.connect(mongoURL, {
+            useNewUrlParser: true,
+            useUnifiedTopology: true
+        });
+        mongoose.Promise = global.Promise;
+        mongoose.set('debug', true);
+        const db = await mongoose.connection;
 
+        db.on('error', console.error.bind(console, 'MongoDB connection error:'));
+        db.once('open', function () {
+            console.log('connect')
+        });
+    } catch (error) {
+        logger.error(error);
+    }
+}
 
-mongoose.connect('mongodb+srv://pavel:5430027@cluster0.3rwmy.mongodb.net/speech?retryWrites=true&w=majority', {useNewUrlParser: true, useUnifiedTopology: true });
-
-// const db = mongoose.connection;
-// db.on('error',  logger.error(`Failed to connect to MongoDB`));
-// db.once('open', function() {
-//   // we're connected!
-// });
-mongoose.Promise = global.Promise;
-mongoose.set('debug', true);
-var db = mongoose.connection;
-db.on('error', logger.error.bind(console, 'MongoDB connection error:'));
+module.exports = startDB;

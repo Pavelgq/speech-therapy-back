@@ -2,14 +2,17 @@ const {
     Router
   } = require(`express`);
   const multer = require(`multer`);
+  const jwt = require('jsonwebtoken'); 
   const async = require(`../utils/async`);
 //   const dataRenderer = require(`../utils/data-renderer`);
+  const userModel = require(`./user-model`);
+  const passport = require('../routes/passport');
   const logger = require(`../logger/logger`);
-
+  const jwtsecret = require('../secret/jwtsecret');
 //   const createStreamFromBuffer = require(`../utils/buffer-to-stream`);
   
   
-  const chatRouter = new Router();
+  const userRouter = new Router();
   
   const toPage = async (cursor, skip = 0, limit = 20) => {
     return {
@@ -20,10 +23,9 @@ const {
     };
   };
   
-  chatRouter.use((req, res, next) => {
+  userRouter.use((req, res, next) => {
     res.header(`Access-Control-Allow-Origin`, `*`);
     res.header(`Access-Control-Allow-Headers`, `Origin, X-Requested-With, Content-Type, Accept`);
-    //res.header('Content-Type', 'form-data')
     next();
   });
   
@@ -31,73 +33,72 @@ const {
     storage: multer.memoryStorage()
   });
   
-  chatRouter.post(`/auth`, async (async (req, res) => {
-    const id = req.query.id;
-  
-    if (id != undefined) {
-      // const data = await req.body;
-      // 
-      const result = await chatRouter.userStore.getUser(id);
-      res.send(await result);
-    } else {
-      const data = await req.body;
-  
-      const result = await chatRouter.userStore.getUserByLogin(data.login);
-  
-      if ((result != null) && (result.pass === data.pass)) {
-        res.send(await result);
-      } else {
-        res.send({
-          id: "auth"
-        });
-      }
+  userRouter.get('/',(req,res,next)=>{
+    //Создадим новый handler который сидить по пути `/`
+    res.send('Hello, World!');
+    // Отправим привет миру!
+});
+
+  userRouter.post(`/auth`, async (req, res) => {
+    try {
+      const result =  await userModel.create(req.body);
+      console.log(result);
+      res.redirect('/api/user/');
+    } catch (error) {
+      res.status = 400;
+      res.body = error;
+      console.log(error);
+      logger.error(error);
     }
-  
-  }));
-  
-  
-  chatRouter.post(``, upload.single(`upload`), async (async (req, res) => {
-    let data = await req.body;
-    logger.info(`Received data from user: `, data);
-  
-    const avatar = req.file;
-    console.log(avatar);
-    if (avatar) {
-      data.avatar = avatar;
-    }
-  
-    console.log(upload);
-  
-    if (avatar) {
-      const avatarInfo = {
-        path: `/api/user/${data.login}/avatar`,
-        mimetype: avatar.mimetype
-      };
-      await chatRouter.imageStore.save(avatarInfo.path, createStreamFromBuffer(avatar.buffer));
-  
-      data.avatar = avatarInfo;
-    }
-    const result = await chatRouter.userStore.getUserByLogin(data.login);
-    if (!result) {
-      await chatRouter.userStore.save(data);
-    } else {
-      data = {
-        id: "reg"
-      };
-    }
-  
-    // dataRenderer.renderDataSuccess(req, res, data);
-  }));
-  
-  
-  
-  chatRouter.use((exception, req, res, next) => {
-    // dataRenderer.renderException(req, res, exception);
-    next();
+    
   });
+
+  userRouter.get('/auth', function (req, res, next) {
+    console.log('the response will be sent by the next function ...');
+    next();
+  }, function (req, res) {
+    res.send('Hello from B!');
+  });
+
+  userRouter.post('/login', async((async (req, res, next) => {
+    await passport.authenticate('local', function (err, user) {
+      if (user == false) {
+        console.log("login failed")
+        res.body = "Login failed";
+      } else {
+        //--payload - info to put in the JWT
+        const payload = {
+          id: user.id,
+          displayName: user.displayName,
+          email: user.email
+        };
+        const token = jwt.sign(payload, jwtsecret); //JWT is created here
   
-  module.exports = (userStore, imageStore) => {
-    chatRouter.userStore = userStore;
-    chatRouter.imageStore = imageStore;
-    return chatRouter;
-  }
+        res.body = {user: user.displayName, token: 'JWT ' + token};
+      }
+    })(req, res, next);
+  
+  })));
+
+  userRouter.get('/custom', async(req, res, next) => {
+    
+    await passport.authenticate('jwt', function (err, user) {
+      if (user) {
+        res.body = "hello " + user.displayName;
+      } else {
+        res.body = "No such user";
+        console.log("err", err)
+      }
+    } )(req, res, next)
+
+  });
+
+
+  module.exports = userRouter;
+
+  
+//   module.exports = (userStore, imageStore) => {
+//     chatRouter.userStore = userStore;
+//     chatRouter.imageStore = imageStore;
+//     return chatRouter;
+//   }

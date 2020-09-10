@@ -1,3 +1,3 @@
 const jwtsecret = "lavirovanie";
 
-export default jwtsecret;
+module.exports = jwtsecret;
