@@ -6,8 +6,8 @@ const ExtractJwt = require('passport-jwt').ExtractJwt; // Auth via JWT
 const jwtsecret = require('../secret/jwtsecret');
 const userModel = require(`./user-model`);
 
-
-passport.use(new LocalStrategy({
+const makePassport = () => {
+  passport.use(new LocalStrategy({
     usernameField: 'email',
     passwordField: 'password',
     session: false
@@ -46,4 +46,7 @@ passport.use(new JwtStrategy(jwtOptions, function (payload, done) {
   })
 );
 
-module.exports = passport;
+}
+
+
+module.exports = makePassport;

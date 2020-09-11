@@ -7,7 +7,31 @@ const logger = require(`../logger/logger`);
 // console.log(mongoose);
 
 const userSchema = new mongoose.Schema({
-    displayName: String,
+    role: {
+        type: String,
+        required: 'role is required',
+        default: 'user'
+    },
+    firstName: String,
+    lastName: String,
+    sex: String,
+    class: String,
+    level: { 
+        type: Number,
+        default: 1
+    },
+    money: { 
+        type: Number,
+        default: 0
+    },
+    exp: { 
+        type: Number,
+        default: 0
+    },
+    login: {
+        type: String,
+        unique: 'this login already exist'
+    },
     email: {
         type: String,
         required: 'e-mail is required',
