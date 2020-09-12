@@ -16,6 +16,7 @@ const startDB = require(`../db/database`)
 
 // const imageStore = require(`../images/imageStore`);
 const userRoutes = require(`../routes/user-routes`);//, imageStore);
+const lessonRouter = require(`../routes/lesson-routes`);
 
 const logger = require(`../logger/logger`);
 
@@ -27,7 +28,7 @@ app.use(passport.initialize());
 makePassport();
 
 app.use(`/api/user`, userRoutes);
-// app.use(`/api/stats`, statsRouter);
+app.use(`/api/lesson`, lessonRouter);
 
 const HOSTNAME = process.env.SERVER_HOST || `localhost`;
 const PORT = parseInt(process.env.SERVER_PORT, 10) || 3000;

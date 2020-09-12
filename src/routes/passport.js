@@ -13,6 +13,7 @@ const makePassport = () => {
     session: false
   },
   function (email, password, done) {
+    
     userModel.findOne({email}, (err, user) => {
       if (err) {
         return done(err);

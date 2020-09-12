@@ -34,13 +34,9 @@ const upload = multer({
   storage: multer.memoryStorage()
 });
 
-userRouter.get('/', (req, res, next) => {
-  //Создадим новый handler который сидить по пути `/`
-  res.send('Hello, World!');
-  // Отправим привет миру!
-});
 
 userRouter.post(`/auth`, async (req, res) => {
+
   try {
     const result = await userModel.create(req.body);
     console.log(result);
@@ -98,16 +94,39 @@ userRouter.get('/custom', async (req, res, next) => {
 });
 
 /**
+ * Запрос на всех пользователей
+ */
+userRouter.get('/all', async (req, res, next) => {
+  await passport.authenticate('jwt', function (err, user) {
+    console.log(user);
+    if (user && user.role == "admin") {
+      userModel.find({}, function (err, users) {
+        const userMap = {};
+
+        users.forEach(function (user) {
+          userMap[user._id] = user;
+        });
+
+        res.send(userMap);
+      });
+    } else {
+      res.send("No access");
+      console.log("err", err);
+    }
+  })(req, res, next)
+})
+
+/**
  * Запрос на изменения данных пользователя
  */
 userRouter.post('/change', async (req, res, next) => {
   await passport.authenticate('jwt', function (err, user) {
-      if ((user.login == req.body.login) || (user && user.role == admin)) {
-        //тут будут изменяться данные пользователя;
-      } else {
-        res.send("No access");
-        console.log("err", err);
-      }
+    if ((user.login == req.body.login) || (user && user.role == "admin")) {
+      //тут будут изменяться данные пользователя;
+    } else {
+      res.send("No access");
+      console.log("err", err);
+    }
   })(req, res, next)
 })
 
