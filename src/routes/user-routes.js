@@ -27,6 +27,9 @@ const toPage = async (cursor, skip = 0, limit = 20) => {
 userRouter.use((req, res, next) => {
   res.header(`Access-Control-Allow-Origin`, `*`);
   res.header(`Access-Control-Allow-Headers`, `Origin, X-Requested-With, Content-Type, Accept`);
+  res.header('Access-Control-Allow-Credentials', 'true')
+ 
+  
   next();
 });
 
@@ -51,6 +54,7 @@ userRouter.post(`/auth`, async (req, res) => {
 });
 
 userRouter.post('/login', async ((async (req, res, next) => {
+  console.log(req.body)
   await passport.authenticate('local', function (err, user) {
 
     if (user == false) {
@@ -84,7 +88,8 @@ userRouter.get('/custom', async (req, res, next) => {
   await passport.authenticate('jwt', function (err, user) {
     console.log(user, "user");
     if (user) {
-      res.send("hello " + user.login);
+      console.log(user)
+      res.send(user);
     } else {
       res.send("No such user");
       console.log("err", err)
