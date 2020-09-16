@@ -14,6 +14,14 @@ const userSchema = new mongoose.Schema({
     lastName: String,
     sex: String,
     class: String,
+    days: {
+        type: Number,
+        default: 0
+    },
+    lessons: {
+        type: Number,
+        default: 0
+    },
     level: { 
         type: Number,
         default: 1
