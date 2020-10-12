@@ -14,10 +14,12 @@ const userSchema = new mongoose.Schema({
     lastName: String,
     sex: String,
     class: String,
-    days: {
-        type: Number,
-        default: 0
-    },
+    days: [
+        {
+            type: Date,
+            default: Date.now
+        }
+    ],
     lessons: {
         type: Number,
         default: 0
@@ -33,6 +35,14 @@ const userSchema = new mongoose.Schema({
     exp: { 
         type: Number,
         default: 0
+    },
+    kMoney: {
+        type: Number,
+        default: 1
+    },
+    kExp: {
+        type: Number,
+        default: 1
     },
     login: {
         type: String,

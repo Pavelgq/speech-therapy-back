@@ -16,12 +16,17 @@ const lessonSchema = new mongoose.Schema({
     duration: Number,
     tasks: [
         {
-            type: {
+            game: {
                 type: String,
+                require: true
+            },
+            type: {
+                type: Number,
                 require: true
             },
             reaction: Number,
             total: Number,
+            correct: Number,
             fail: Number
         }
     ]

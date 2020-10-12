@@ -122,12 +122,27 @@ userRouter.get('/all', async (req, res, next) => {
 })
 
 /**
- * Запрос на изменения данных пользователя
+ * Запрос на изменения данных пользователя (админ)
  */
-userRouter.post('/change', async (req, res, next) => {
+userRouter.post('/change-info', async (req, res, next) => {
   await passport.authenticate('jwt', function (err, user) {
     if ((user.login == req.body.login) || (user && user.role == "admin")) {
       //тут будут изменяться данные пользователя;
+    } else {
+      res.send("No access");
+      console.log("err", err);
+    }
+  })(req, res, next)
+})
+
+/**
+ * Запрос на изменения данных пользователя (игра)
+ */
+userRouter.post('/change-data', async (req, res, next) => {
+  await passport.authenticate('jwt', function (err, user) {
+    if (user.login == req.body.login) {
+      console.log(user, 'user');
+      console.log(req.body, 'request');
     } else {
       res.send("No access");
       console.log("err", err);
