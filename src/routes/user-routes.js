@@ -140,7 +140,10 @@ userRouter.post('/change-info', async (req, res, next) => {
  */
 userRouter.post('/change-data', async (req, res, next) => {
   await passport.authenticate('jwt', function (err, user) {
-    if (user.login == req.body.login) {
+    if (user.login) {
+      userModel.updateOne({login: user.login},{ ...req.body}, function (err, result) {
+        res.send(result);
+      });
       console.log(user, 'user');
       console.log(req.body, 'request');
     } else {
