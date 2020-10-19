@@ -50,6 +50,28 @@ const {
   
   });
 
+  lessonRouter.post(`/my`, async (req, res) => {
+    console.log('user');
+    await passport.authenticate('jwt', function (err, user) {
+        if (user) {
+          console.log(user);
+            lessonModel.find({user: user._id}, function(err, lessons) {
+              const allLesson = {};
+              console.log(lessons);
+              lessons.forEach(function (lesson) {
+                allLesson[lesson._id] = lessons;
+              });
+
+        res.send(allLesson);
+            })
+           
+        } else {
+    
+          res.send();
+        }
+      })(req, res);  
+  });
+
   lessonRouter.post(`/during`, async (req, res) => {
     await passport.authenticate('local', function (err, user) {
         if (user && user.role == 'Admin') {

@@ -144,6 +144,9 @@ userRouter.post('/change-data', async (req, res, next) => {
       userModel.updateOne({login: user.login},{ ...req.body}, function (err, result) {
         res.send(result);
       });
+      user.days.push( new Date());
+      user.save();
+     
       console.log(user, 'user');
       console.log(req.body, 'request');
     } else {
