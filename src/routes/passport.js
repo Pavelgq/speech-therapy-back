@@ -34,6 +34,7 @@ const jwtOptions = {
 };
 
 passport.use(new JwtStrategy(jwtOptions, function (payload, done) {
+  console.log(payload, 'payload')
     userModel.findById(payload.id, (err, user) => {
       if (err) {
         return done(err)

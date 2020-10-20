@@ -50,8 +50,7 @@ const {
   
   });
 
-  lessonRouter.post(`/my`, async (req, res) => {
-    console.log('user');
+  lessonRouter.get(`/my`, async (req, res) => {
     await passport.authenticate('jwt', function (err, user) {
         if (user) {
           console.log(user);
@@ -59,7 +58,7 @@ const {
               const allLesson = {};
               console.log(lessons);
               lessons.forEach(function (lesson) {
-                allLesson[lesson._id] = lessons;
+                allLesson[lesson._id] = lesson;
               });
 
         res.send(allLesson);
