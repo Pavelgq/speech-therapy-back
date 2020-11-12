@@ -28,8 +28,8 @@ userRouter.use((req, res, next) => {
   res.header(`Access-Control-Allow-Origin`, `*`);
   res.header(`Access-Control-Allow-Headers`, `Origin, X-Requested-With, Content-Type, Accept`);
   res.header('Access-Control-Allow-Credentials', 'true')
- 
-  
+
+
   next();
 });
 
@@ -122,20 +122,6 @@ userRouter.get('/all', async (req, res, next) => {
 })
 
 /**
- * Запрос на изменения данных пользователя (админ)
- */
-userRouter.post('/change-info', async (req, res, next) => {
-  await passport.authenticate('jwt', function (err, user) {
-    if ((user.login == req.body.login) || (user && user.role == "admin")) {
-      //тут будут изменяться данные пользователя;
-    } else {
-      res.send("No access");
-      console.log("err", err);
-    }
-  })(req, res, next)
-})
-
-/**
  * Запрос на изменения данных пользователя (игра)
  */
 userRouter.post('/change-data', async (req, res, next) => {
@@ -143,11 +129,15 @@ userRouter.post('/change-data', async (req, res, next) => {
     console.log(user, err)
     if (user) {
       console.log(user.login)
-      userModel.updateOne({login: user.login},{ ...req.body}, function (err, result) {
+      userModel.updateOne({
+        login: user.login
+      }, {
+        ...req.body
+      }, function (err, result) {
         console.log(err);
-        
+
       });
-      user.days.push( new Date());
+      user.days.push(new Date());
       user.save();
       res.send(user);
       console.log(user, 'user');
@@ -160,15 +150,40 @@ userRouter.post('/change-data', async (req, res, next) => {
 })
 
 /**
- * Запрос на удаление пользователя из базы
+ * Запрос на изменение данных пользователя
  */
-userRouter.delete('/remove', async (req, res, next) => {
+userRouter.put('/:id', async (req, res, next) => {
   await passport.authenticate('jwt', function (err, user) {
     if (user && user.role == 'admin') {
+      const updateUser = req.params.id;
+      userModel.updateOne({
+        _id: updateUser
+      }, {
+        ...req.body
+      }, function (err, result) {
+        console.log(err);
+
+      });;
+      res.send("user " + removeUser + " deleted");
+    } else {
+      res.send("No access");
+      console.log("err", err)
+    }
+
+  })(req, res, next)
+})
+
+/**
+ * Запрос на удаление пользователя из базы
+ */
+userRouter.delete('/:id', async (req, res, next) => {
+  await passport.authenticate('jwt', function (err, user) {
+    if (user && user.role == 'admin') {
+      const removeUser = req.params.id;
       userModel.deleteOne({
-        login: req.body.ghostUser
+        _id: removeUser
       }, function (err) {});
-      res.send("user " + req.body.ghostUser + " deleted");
+      res.send("user " + removeUser + " deleted");
     } else {
       res.send("No access");
       console.log("err", err)

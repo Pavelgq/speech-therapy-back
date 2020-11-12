@@ -13,7 +13,7 @@ const userSchema = new mongoose.Schema({
     firstName: String,
     lastName: String,
     sex: String,
-    class: String,
+    classGroup: String,
     days: [
         {
             type: Date,
