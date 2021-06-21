@@ -59,7 +59,8 @@ userRouter.post('/login', async ((async (req, res, next) => {
 
     if (user == false) {
       console.log("login failed")
-      res.send("Login failed");
+      res.status(422)
+      res.send('Неверное имя пользователя или пароль')
     } else {
       //--payload - info to put in the JWT
       const payload = {
@@ -84,14 +85,14 @@ userRouter.post('/login', async ((async (req, res, next) => {
  * Запрос проверяет наличие валидного JWT
  */
 userRouter.get('/custom', async (req, res, next) => {
-
   await passport.authenticate('jwt', function (err, user) {
-    console.log(user, "user");
+    if (err) { return next(err); }
     if (user) {
       console.log(user)
       res.send(user);
     } else {
-      res.send("No such user");
+      res.status(422)
+      res.send('Неверное имя пользователя или пароль')
       console.log("err", err)
     }
   })(req, res, next)

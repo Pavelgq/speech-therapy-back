@@ -8,25 +8,25 @@ const userModel = require(`./user-model`);
 
 const makePassport = () => {
   passport.use(new LocalStrategy({
-    usernameField: 'email',
-    passwordField: 'password',
-    session: false
-  },
-  function (email, password, done) {
-    
-    userModel.findOne({email}, (err, user) => {
-      if (err) {
-        return done(err);
-      }
+      usernameField: 'email',
+      passwordField: 'password',
+      session: false
+    },
+    function (email, password, done) {
+      userModel.findOne({email}, (err, user) => {
+        if (err) {
+          return done(err);
+        }
 
-      if (!user || !user.checkPassword(password)) {
-        return done(null, false, {message: 'User does not exist or wrong password.'});
-      }
-      return done(null, user);
-    });
-  }
-  )
-);
+        if (!user || !user.checkPassword(password)) {
+            return done(null, false, {message: 'Пользователь не существует'});
+        } 
+        else {
+          return done(null, user);
+        }
+      });
+    })
+  );
 
 const jwtOptions = {
   jwtFromRequest: ExtractJwt.fromAuthHeaderWithScheme ("jwt"),
@@ -36,9 +36,9 @@ const jwtOptions = {
 passport.use(new JwtStrategy(jwtOptions, function (payload, done) {
   console.log(payload, 'payload')
     userModel.findById(payload.id, (err, user) => {
-      if (err) {
-        return done(err)
-      }
+      // if (err) {
+      //   return done(err)
+      // }
       if (user) {
         done(null, user)
       } else {

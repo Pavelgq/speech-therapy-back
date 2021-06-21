@@ -118,4 +118,30 @@ lessonRouter.post(`/current`, async (req, res) => {
   })(req, res);
 });
 
+lessonRouter.get(`/:id`, async (req, res) => {
+  await passport.authenticate('jwt', function (_err, user) {
+    console.log('work')
+    if (user && user.role === 'admin') {
+      console.log(user)
+      const currentUserId = req.params.id
+      lessonModel.find(
+        {
+          user: currentUserId,
+        },
+        function (_err, lessons) {
+          const allLesson = {}
+          console.log(lessons)
+          lessons.forEach(function (lesson) {
+            allLesson[lesson._id] = lesson
+          })
+
+          res.send(allLesson)
+        }
+      )
+    } else {
+      res.send({ error: 'access error' })
+    }
+  })(req, res)
+})
+
 module.exports = lessonRouter;
