@@ -13,28 +13,41 @@ const makePassport = () => {
       session: false
     },
     function (email, password, done) {
-      userModel.findOne({email}, (err, user) => {
+      userModel.findOne({
+        email
+      }, (err, user) => {
+        console.log("this", err, user)
         if (err) {
-          return done(err);
+          return done(err, false, {
+            message: 'Логин не верный'
+          });
         }
 
-        if (!user || !user.checkPassword(password)) {
-            return done(null, false, {message: 'Пользователь не существует'});
-        } 
-        else {
-          return done(null, user);
+        if (!user) {
+          return done(null, false, {
+            message: 'Логин не верный'
+          });
+        } else {
+          if (!user.checkPassword(password)) {
+            return done(null, false, {
+              message: 'Пароль не верный'
+            });
+          } else {
+            return done(null, user);
+          }
         }
+
+
       });
-    })
-  );
+    }));
 
-const jwtOptions = {
-  jwtFromRequest: ExtractJwt.fromAuthHeaderWithScheme ("jwt"),
-  secretOrKey: jwtsecret
-};
+  const jwtOptions = {
+    jwtFromRequest: ExtractJwt.fromAuthHeaderWithScheme("jwt"),
+    secretOrKey: jwtsecret
+  };
 
-passport.use(new JwtStrategy(jwtOptions, function (payload, done) {
-  console.log(payload, 'payload')
+  passport.use(new JwtStrategy(jwtOptions, function (payload, done) {
+    console.log(payload, 'payload')
     userModel.findById(payload.id, (err, user) => {
       // if (err) {
       //   return done(err)
@@ -45,8 +58,7 @@ passport.use(new JwtStrategy(jwtOptions, function (payload, done) {
         done(null, false)
       }
     })
-  })
-);
+  }));
 
 }
 

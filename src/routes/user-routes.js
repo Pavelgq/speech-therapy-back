@@ -37,9 +37,10 @@ const upload = multer({
   storage: multer.memoryStorage()
 });
 
-
+/**
+ * Регистрация нового пользователя
+ */
 userRouter.post(`/auth`, async (req, res) => {
-
   try {
     const result = await userModel.create(req.body);
     console.log(result);
@@ -48,19 +49,19 @@ userRouter.post(`/auth`, async (req, res) => {
     res.status = 400;
     console.log(error);
     logger.error(error);
-    res.send(error);
+    res.send("Ошибка при регистрации пользователя");
   }
-
 });
 
+/**
+ * Авторизация с получением токена
+ */
 userRouter.post('/login', async ((async (req, res, next) => {
-  console.log(req.body)
-  await passport.authenticate('local', function (err, user) {
-
+  await passport.authenticate('local', function (err, user, msg) {
+    console.log(msg)
     if (user == false) {
-      console.log("login failed")
       res.status(422)
-      res.send('Неверное имя пользователя или пароль')
+      res.send(msg.message)
     } else {
       //--payload - info to put in the JWT
       const payload = {
@@ -69,7 +70,6 @@ userRouter.post('/login', async ((async (req, res, next) => {
         email: user.email
       };
       const token = jwt.sign(payload, jwtsecret); //JWT is created here
-
 
       res.send({
         role: user.role,
@@ -92,7 +92,7 @@ userRouter.get('/custom', async (req, res, next) => {
       res.send(user);
     } else {
       res.status(422)
-      res.send('Неверное имя пользователя или пароль')
+      res.send('Доступ ограничен')
       console.log("err", err)
     }
   })(req, res, next)
@@ -116,7 +116,7 @@ userRouter.get('/all', async (req, res, next) => {
         res.send(userMap);
       });
     } else {
-      res.send("No access");
+      res.send("Нет доступа");
       console.log("err", err);
     }
   })(req, res, next)
